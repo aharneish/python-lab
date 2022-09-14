@@ -1,0 +1,363 @@
+
+<HTML>
+<head>
+<title>Planetoids!</title>
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}});
+</script>
+<script type="text/javascript"
+  src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+</head>
+
+<body>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/1.7.1/clipboard.min.js"></script>
+    <script>
+    var clipboard = new Clipboard('.btn');
+
+    clipboard.on('success', function(e) {
+        console.log(e);
+    });
+
+    clipboard.on('error', function(e) {
+        console.log(e);
+    });
+    </script>
+
+
+<H1>
+Planetoids pre-survey!
+<p>
+<mark><a href="assessments/planetoids/planetoidsquiz_pre.html">PLEASE TAKE THE PLANETOIDS PRE-SURVEY!!!!!!! Look at how big the font is for this link!!! Looks important! Please click here to take the Planetoids pre-survey!</a></mark>
+</h1>
+
+<H1>The Planetoids Game</H1>
+
+<p>In the classic game of Asteroids, there is a little ship that flies around in space, very far away from stars and planets so that the gravitational acceleration is zero.
+
+<p>The code is designed to solve the (rather simple) kinematic equations in this case. If we just consider the x-direction forces the equations look like this:
+
+$$\sum F_{\rm{net},x} = F_{\rm thrust} = m \, a_x$$
+
+$$ \Delta v_x = a_x \Delta t$$
+
+$$ v_x = v_{x0} + \Delta v_x$$
+
+$$ x = x_0 + v_x \cdot \Delta t $$
+
+<p>The computer program we will work with here computes these equations over and over again, updating $v_x$ and $x$ depending on whether the thrust is turned on or off. Since the thrust is the only force, if it is turned off then $a_x = 0$ and $\Delta v_x = 0$ and the ship just continues with the same $v_x$ velocity. This is how the code works if the ship only moves in the $x$ direction. The equations are essentially the same for the $y$ direction. In the last step of this lab you will modify the code so that the ship can move in the $y$ direction too.
+
+
+<p><H3>Step 1. Play around with a 1-dimensional version of Asteroids</h3> Click on <a href="planetoids1d_v1/planetoids.html">this link to the 1D version</a> of the spaceship from asteroids. Push up arrow to see the rocket accelerate. Unfortunately right now the ship can only accelerate in one direction. We will change this step-by-step to make the behavior more similar to the classic asteroids game. If the example doesn't work tell the instructor.
+
+<p>This is the code used to move the ship around in the 1D version. Take a close look at the code and try to get an idea of what each part does:
+
+<pre>
+function draw() {
+
+    // Update velocities
+    vx += deltaVx;
+
+    // Update location
+    x += vx*dt;
+
+    // velocity is unchanged if there are no forces
+    deltaVx = 0;
+
+    if (keyIsDown(LEFT_ARROW)) {
+        theta += 0.0;
+    }
+    if (keyIsDown(RIGHT_ARROW)) {
+        theta += 0.0;
+    }
+    if (keyIsDown(UP_ARROW)) {
+        // Rockets on!
+        accelx = Fthrust*cos(theta)/mass;
+        deltaVx = accelx*dt;
+    } 
+    if (keyIsDown(DOWN_ARROW)) {
+        // Do nothing
+    } 
+    if (keyIsPressed && key == ' '){ //spacebar
+       // Do nothing!
+    }
+  
+    // Draw ship and other stuff
+    display();
+
+} // end draw()
+</pre>
+
+<P><H3>Step 2. Try out the 1D planetoids code in an editor</H3> 
+
+<p><a href="http://alpha.editor.p5js.org/ChrisOrban/sketches/Hk9K5yO1f" target="_blank">Click on this link to open the 1D planetoids code in a p5.js editor</a>
+
+<p>Press play there to run the code. It should look the same as it did with the <a href="planetoids1d_v1/planetoids.html">link you were given in Step 1</a>
+
+
+<p><H4><mark>Very Important: Sign up for an account! Then click "Duplicate" so you can have your own version of the code!!!</mark></H4>
+
+
+<p><H3>Step 3. Edit the source code to let the ship rotate!</H3>
+
+<p>After you <b><mark>click duplicate!</mark></b> to make sure that you're working on your own version of the code, change these lines of code:
+
+<pre>
+    if (keyIsDown(LEFT_ARROW)) {
+        theta += 0.0;
+    } else if (keyIsDown(RIGHT_ARROW)) {
+        theta += -0.0;
+</pre>
+
+to look like this:
+
+<pre>
+    if (keyIsDown(LEFT_ARROW)) {
+        theta += 0.1;
+    } else if (keyIsDown(RIGHT_ARROW)) {
+        theta += -0.1;
+</pre>
+
+<p>The asteroids game is now set up so so that only the x-component of the thrust is what accelerates the ship. Notice that allowing the ship to rotate means that we can speed up and slow down the ship because we can rotate the rocket and apply a force that is opposite to the velocity vector. Our asteroids game is already a lot more fun! For reference, <a href="planetoids1d_v2/planetoids.html">the game should now behave like this</a>. 
+
+<p><H3>Step 4. Enable multi-dimensional space travel (i.e. let the ship move in the y direction too)</H3>
+
+<p>Now take the code you've written and modify it so that the ship can move in the y direction. It will take a few different changes to get it to work.
+
+<p><H4>Step 4a. Change the "Update location" section</H4>
+
+<p>Look at the "Update location" section. Right now it looks like this:
+
+<pre>
+// Update location
+x += vx*dt;
+</pre>
+
+<p>As you can see, only the <code>x</code> position is updated. The <code>y</code> position is not updated. Change the "Update location" section to this:
+
+<pre>
+// Update location
+x += vx*dt;
+y += vy*dt;
+</pre>
+
+<p><H4>Step 4.b. Change the "Update velocities" section</H4>
+
+<p>If you did step 4a correctly, we can now update both the x position and the y position, but only if $v_x$ and $v_y$ are non-zero! This will only happen if we change the "Update velocities" section so that both <code>vx</code> and <code>vy</code> are updated.
+
+<p>Change this:
+
+<pre>
+\\ Update velocities
+vx += deltaVx;
+</pre>
+
+<p>to this: 
+<pre>
+\\ Update velocities
+vx += deltaVx;
+vy += deltaVy;
+</pre>
+
+<p><H4>Step 4.c. Objects in motion move in a straight line unless acted on by a force</H3>
+
+<p>Newton realized that objects move in a straight line with constant velocity if there are no forces acting on the object. For our computer program, we need to make sure that the velocity only changes when we push buttons on the keyboard. If we don't push any buttons then the change in velocity ($\Delta v_x$ and $\Delta v_y$) had better be zero.
+
+<p>This is the logic behind this part of the code:
+
+<pre>
+    // velocity is unchanged if there are no forces
+    deltaVx = 0;
+</pre>
+
+<p>Change this to make sure <code>deltaVy</code> is set to zero too:
+
+<pre>
+    // velocity is unchanged if there are no forces
+    deltaVx = 0;
+    deltaVy = 0;
+</pre>
+
+<p>This is an important step because if you do the next step correctly, but you forget to do this the ship will accelerate uncontrollably.
+
+
+<p><H4>Step 4.d. Make sure that acceleration works in the y-direction</H4>
+
+<p>If you've done all the steps up to this point correctly, the ship <b><i>still</i></b> won't move in the y direction because we haven't told the ship how to accelerate in the y direction when the thrusters are turned on. Nowhere in the program do we set <code>deltaVy</code> equal to anything except zero!
+
+<p>Look closely at this part of the code: 
+
+<pre>
+    if (keyIsDown(UP_ARROW)) {
+        // Rockets on!
+        accelx = Fthrust*cos(theta)/mass;
+        deltaVx = accelx*dt;
+    }
+</pre> 
+
+<p>You'll need to change this to something like this:
+
+<pre>
+    if (keyIsDown(UP_ARROW)) {
+        // Rockets on!
+        accelx = Fthrust*cos(theta)/mass;
+        deltaVx = accelx*dt;
+        accely = <mark>????</mark>
+        deltaVy = accely*dt;
+    }
+</pre>
+
+<p>It's your job to replace the <mark>????</mark> with something that actually gives the correct acceleration in the y direction. (Hint: it is very similar to the code for <code>accelx</code> but the trig function might be different! Should you use cosine, sine or tangent for the trig function? If you're not sure just try one and see what happens!)
+
+<p><H3>Step 5.  Check that everything works as expected!</H5>
+
+<p>If you make all these changes <a href="planetoids2d/planetoids.html">your code should behave like this</a> and your ship should be able to move in 2 dimensions!
+
+<p><b>Potential pitfall:</b> Which trig function did you use to determine the y-component acceleration?
+
+<p><H3>Step 6. Add code to show the path of the ship</H3>
+
+<p>After <code>display();</code> you can add this code and it will show the path of the ship:
+
+<pre>
+    for( i = 0; i < xhistory.length ; i+= 1) {
+     drawPoint(xhistory[i],yhistory[i]); 
+    }
+</pre>
+
+<button class="btn" data-clipboard-text="    for( i = 0; i < xhistory.length ; i+= 1) {
+     drawPoint(xhistory[i],yhistory[i]);
+    }">
+    Copy code to clipboard
+</button>
+
+<p><H3>Step 7. Give the ship an initial velocity</H3>
+
+<p>Change the ship so that it comes in from the left with an initial velocity. Modify the beginning of the code to this:
+
+<pre>
+x = 0;
+y = 250;
+
+vx = 25;
+vy = 0;
+</pre>
+
+<p>and just for fun change the angle of the ship so that it points straight up:
+
+<pre>
+theta = 3.141/2;
+</pre>
+
+<p>As you can see, the angle is being changed from 0 to $\pi/2$ radians. If converted to degrees this would be 90 degrees.  <a href="http://www.asc.ohio-state.edu/orban.14/processing_fall2016/intro/angle.html">This should make the ship point straight up (click here if curious about why).</a>
+
+<p><H3>Step 8. Fire the thrusters and look closely at the trajectory of the ship</H3>
+
+<p>Let the ship drift a little bit and then fire the thrusters. How does the trajectory (the curve) look?
+
+<p><b><mark>Play around with the ship for 2-3 minutes!  Change the initial velocity, position and angle of the ship. See what happens! </mark></b> 
+
+<p><H3>Step 9. Find the best value of the mass of the ship to survive!</H3>
+
+<p>If your code behaves as expected, then take all your modifications to the 1D code and <a href="http://alpha.editor.p5js.org/ChrisOrban/sketches/SkDeoJukf" target="_blank">add them to this version of the code which includes planetoids!</a>
+
+<p><mark><b>Change the values for the <code>mass</code> until you find the best combination to fly around and avoid the planetoids!</b></mark>
+
+
+<p><H2>Challenges: Choose one!</H2>
+
+<p><H3>Option: Add Reverse thrusters</H3>
+
+<p>This is one of the easier challenges. Notice that your code has a section for when you press the down arrow:
+
+<pre>
+    if (keyIsDown(DOWN_ARROW)) {
+        // Do nothing                                                           
+    }
+</pre>
+
+<p>Where it says "Do nothing" how would you add code to fire the thrusters in reverse? 
+
+<p>Hint: You want to accelerate in the opposite direction of the acceleration you get when the thrusters are turned on.
+
+<!--
+<p><H3>Option: Add asteroids to the game</H3>
+
+<p>It's not much of an asteroids game without asteroids! Add asteroids to the code which drift at random directions using the ellipse function
+
+<pre>
+drawEllipse(x_asteroid,y_asteroid,width_asteroid,height_asteroid);
+</pre>
+
+<p>Place this just after where it says display(); Then make sure these variables are initialized at the beginning of the program like this:
+
+<pre>
+x_asteroid=200;
+y_asteroid=200;
+width_asteroid=50;
+height_asteroid=50;
+</pre>
+
+<p>It is up to you to make the asteroid move in a random direction with some constant velocity.
+
+<p>Note: to calculate a random direction use the random function to generate a fraction between -1 and 1. For example:
+
+<pre>
+random_number = random(-1,1);
+</pre>
+-->
+<p><H3>Option: Add a projectile to the game </H3>
+
+<p>You can add another if statement to check to see if you've pressed the spacebar:
+
+<pre>
+    if (keyIsPressed && key == ' ') { // spacebar is pressed
+      // Do nothing
+    } 
+</pre>
+
+<p>How would you modify the code so that the spacebar shoots a projectile from the nose of the ship? Add two new float variables called xprojectile and yprojectile to the beginning of the program and use the "drawPoint" function to show the position of the projectile:
+
+<pre>
+drawPoint(xprojectile,yprojectile);
+</pre>
+
+<p>Advice: Place this function just after display(); so that it is drawn every time but set xprojectile and y projectile to zero initially so that the point is drawn at the top left corner of the grid and you can't see it. When the spacebar is pressed set the xprojectile and yprojectile equal to the position of the ship. That at least will put a dot on the screen where the ship is. How would you make it move?
+
+<p><h3><mark>How to get full credit on this assignment!!!</mark></h3>
+
+<p><b>0. Take the pre-survey</b>
+
+<p>Make sure you take the <a href="assessments/planetoids/planetoidsquiz_pre.html">pre-survey at the beginning of the activity</a> in order to tell us about yourself and whether you'd like your responses to be used in the research project
+
+<p><b>1. Complete steps 1-4 and make absolutely sure that the ship can turn and move in two dimensions</b>
+
+<p>Make sure your program <a href="planetoids2d/planetoids.html">behaves exactly like it does at this link</a> to be sure you did steps 1-4 correctly
+
+<p><b>2. Add code to follow the path of the ship (Step 6)</b>
+
+<p>Just copy the code to the clipboard and paste it into the code editor. 
+
+<p><b>3. Complete one of the challenges</b>
+
+<p>Most people choose the reverse thrusters, which is probably the easiest
+
+<p><b>4. Find the best value of the mass of the ship to survive!</b>
+
+<p>This requires modifying <a href="http://alpha.editor.p5js.org/ChrisOrban/sketches/S1UesXHWZ" target="_blank">a version of the code that includes planetoids</a>
+
+<p><b>5. Submit your code before the deadline and take the post survey</b>
+
+<p>Talk to your teacher about where to submit the code
+
+<p><H1>Last step: Take a quiz!</H1>
+
+<H1>
+<mark><a href="assessments/planetoids/planetoidsquiz_post.html">PLEASE TAKE THE PLANETOIDS POST-SURVEY!!!!!!! Look at how big the font is for this link!!! Looks important! Please click here to take the Planetoids post-survey to tell us how the exercise went!</a></mark>
+</h1>
+
+
+</body>
+</html>
